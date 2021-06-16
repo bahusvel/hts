@@ -1,4 +1,4 @@
-module github.com/biogo/hts
+module github.com/bahusvel/hts
 
 go 1.14
 
