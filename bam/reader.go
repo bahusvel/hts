@@ -51,14 +51,27 @@ func NewReader(r io.Reader, rd int) (*Reader, error) {
 	}
 	h, _ := sam.NewHeader(nil, nil)
 	br := &Reader{
-		r: bg,
-		h: h,
-
+		r:          bg,
+		h:          h,
 		references: int32(len(h.Refs())),
 	}
 	err = br.h.DecodeBinary(br.r)
 	if err != nil {
 		return nil, err
+	}
+	br.lastChunk.End = br.r.LastChunk().End
+	return br, nil
+}
+
+func NewReaderWithHeader(r io.Reader, rd int, h *sam.Header) (*Reader, error) {
+	bg, err := bgzf.NewReader(r, rd)
+	if err != nil {
+		return nil, err
+	}
+	br := &Reader{
+		r:          bg,
+		h:          h,
+		references: int32(len(h.Refs())),
 	}
 	br.lastChunk.End = br.r.LastChunk().End
 	return br, nil

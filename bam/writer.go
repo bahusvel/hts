@@ -48,15 +48,16 @@ func NewWriterLevel(w io.Writer, h *sam.Header, level, wc int) (*Writer, error) 
 		bg: bg,
 		h:  h,
 	}
-
-	err = bw.writeHeader(h)
-	if err != nil {
-		return nil, err
-	}
-	bw.bg.Flush()
-	err = bw.bg.Wait()
-	if err != nil {
-		return nil, err
+	if h != nil {
+		err = bw.writeHeader(h)
+		if err != nil {
+			return nil, err
+		}
+		bw.bg.Flush()
+		err = bw.bg.Wait()
+		if err != nil {
+			return nil, err
+		}
 	}
 	return bw, nil
 }
