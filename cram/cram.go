@@ -26,9 +26,9 @@ import (
 
 	"github.com/ulikunitz/xz/lzma"
 
-	"github.com/biogo/hts/cram/encoding/itf8"
-	"github.com/biogo/hts/cram/encoding/ltf8"
-	"github.com/biogo/hts/sam"
+	"github.com/bahusvel/hts/cram/encoding/itf8"
+	"github.com/bahusvel/hts/cram/encoding/ltf8"
+	"github.com/bahusvel/hts/sam"
 )
 
 // cramEOFmarker is the CRAM end of file marker.

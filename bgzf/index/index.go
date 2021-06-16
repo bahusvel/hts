@@ -9,7 +9,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/biogo/hts/bgzf"
+	"github.com/bahusvel/hts/bgzf"
 )
 
 var (

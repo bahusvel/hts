@@ -23,8 +23,8 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/biogo/hts/bgzf"
-	"github.com/biogo/hts/bgzf/cache"
+	. "github.com/bahusvel/hts/bgzf"
+	"github.com/bahusvel/hts/bgzf/cache"
 )
 
 var (
@@ -345,7 +345,7 @@ func readByByte(r *Reader, buf []byte) (n int, err error) {
 	return n, err
 }
 
-// See https://github.com/biogo/hts/issues/57
+// See https://github.com/bahusvel/hts/issues/57
 func TestHeaderIssue57(t *testing.T) {
 	var stamp time.Time
 	if !go1_8 {
@@ -1205,7 +1205,7 @@ func TestWriteByteCount(t *testing.T) {
 func TestSeekCacheReadahead(t *testing.T) {
 	// Check that we see the correct behavior when seeking to the block at the
 	// head of the readahead queue with caching and readahead enabled.
-	// See https://github.com/biogo/hts/issues/159.
+	// See https://github.com/bahusvel/hts/issues/159.
 	fh, err := os.Open("testdata/dbscSNV_sample.gz")
 	if err != nil {
 		t.Fatalf("Open() error:%v", err)

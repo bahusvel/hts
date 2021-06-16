@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/biogo/hts/bgzf"
+	"github.com/bahusvel/hts/bgzf"
 
 	"gopkg.in/check.v1"
 )
@@ -76,7 +76,7 @@ var conceptualChunks = []bgzf.Chunk{
 	{Begin: bgzf.Offset{File: 228, Block: 0}, End: bgzf.Offset{File: 228, Block: 0}},     // EOF
 }
 
-// Test for issue #6 https://github.com/biogo/hts/issues/6
+// Test for issue #6 https://github.com/bahusvel/hts/issues/6
 func (s *S) TestChunkReader(c *check.C) {
 	br, err := bgzf.NewReader(bytes.NewReader(conceptualBAMdata), *conc)
 	c.Assert(err, check.Equals, nil)
@@ -91,7 +91,7 @@ func (s *S) TestChunkReader(c *check.C) {
 	c.Check(err, check.Equals, nil)
 }
 
-// Test for issue #8 https://github.com/biogo/hts/issues/8
+// Test for issue #8 https://github.com/bahusvel/hts/issues/8
 func (s *S) TestIssue8(c *check.C) {
 	br, err := bgzf.NewReader(bytes.NewReader(conceptualBAMdata), *conc)
 	c.Assert(err, check.Equals, nil)
@@ -116,7 +116,7 @@ func (s *S) TestIssue8(c *check.C) {
 	}
 }
 
-// issue10Tests are test cases for https://github.com/biogo/hts/issues/10.
+// issue10Tests are test cases for https://github.com/bahusvel/hts/issues/10.
 var issue10Tests = []struct {
 	words     []wordBlocks
 	chunks    []string

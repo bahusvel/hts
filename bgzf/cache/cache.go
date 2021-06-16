@@ -8,7 +8,7 @@ package cache
 import (
 	"sync"
 
-	"github.com/biogo/hts/bgzf"
+	"github.com/bahusvel/hts/bgzf"
 )
 
 var (

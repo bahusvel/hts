@@ -12,9 +12,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/biogo/hts/bam"
-	"github.com/biogo/hts/bgzf"
-	"github.com/biogo/hts/sam"
+	"github.com/bahusvel/hts/bam"
+	"github.com/bahusvel/hts/bgzf"
+	"github.com/bahusvel/hts/sam"
 )
 
 const (

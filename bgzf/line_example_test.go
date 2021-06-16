@@ -11,7 +11,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/biogo/hts/bgzf"
+	"github.com/bahusvel/hts/bgzf"
 )
 
 func ExampleReader_ReadByte() {

@@ -9,10 +9,10 @@ import (
 	"errors"
 	"io"
 
-	"github.com/biogo/hts/bgzf"
-	"github.com/biogo/hts/bgzf/index"
-	"github.com/biogo/hts/internal"
-	"github.com/biogo/hts/sam"
+	"github.com/bahusvel/hts/bgzf"
+	"github.com/bahusvel/hts/bgzf/index"
+	"github.com/bahusvel/hts/internal"
+	"github.com/bahusvel/hts/sam"
 )
 
 // Index is a BAI index.
