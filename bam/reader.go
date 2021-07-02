@@ -124,6 +124,100 @@ const (
 	AllVariableLengthData        // Omit sequence, quality and auxiliary data.
 )
 
+func readBuf(r io.Reader) (*buffer, error) {
+	lengthBuf := [4]byte{}
+	n, err := io.ReadFull(r, lengthBuf[:4])
+	if err != nil {
+		return nil, err
+	}
+	if n != 4 {
+		return nil, errors.New("bam: invalid record: short block size")
+	}
+	size := int(binary.LittleEndian.Uint32(lengthBuf[:]))
+	if size == 0 {
+		return nil, io.EOF
+	}
+	if size < 0 {
+		return nil, errors.New("bam: invalid record: invalid block size")
+	}
+
+	b := &buffer{}
+	b.off, b.data = 0, make([]byte, size)
+	n, err = io.ReadFull(r, b.data)
+	if err != nil {
+		return nil, err
+	}
+	if n != size {
+		return nil, errors.New("bam: truncated record")
+	}
+	return b, nil
+}
+
+func DecodeBAM(r io.Reader, header *sam.Header) (*sam.Record, error) {
+	b, err := readBuf(r)
+	if err != nil {
+		return nil, err
+	}
+
+	var rec sam.Record
+	refID := b.readInt32()
+	rec.Pos = int(b.readInt32())
+	nLen := b.readUint8()
+	rec.MapQ = b.readUint8()
+	b.discard(2)
+	nCigar := b.readUint16()
+	rec.Flags = sam.Flags(b.readUint16())
+	lSeq := int(b.readInt32())
+	nextRefID := b.readInt32()
+	rec.MatePos = int(b.readInt32())
+	rec.TempLen = int(b.readInt32())
+
+	// Read variable length data.
+	if nLen < 1 {
+		return nil, fmt.Errorf("bam: invalid read name length: %d", nLen)
+	}
+	rec.Name = string(b.bytes(int(nLen) - 1))
+	b.discard(1)
+
+	rec.Cigar = readCigarOps(b.bytes(int(nCigar) * 4))
+
+	var seq, auxTags []byte
+
+	if lSeq < 0 {
+		return nil, fmt.Errorf("bam: invalid sequence length: %d", lSeq)
+	}
+	seq = make([]byte, (lSeq>>1)+(lSeq&0x1))
+	copy(seq, b.bytes(len(seq)))
+	rec.Seq = sam.Seq{Length: lSeq, Seq: *(*doublets)(unsafe.Pointer(&seq))}
+	rec.Qual = b.bytes(lSeq)
+
+	auxTags = b.bytes(b.len())
+	rec.AuxFields, err = parseAux(auxTags)
+	if err != nil {
+		return nil, err
+	}
+
+	refs := int32(len(header.Refs()))
+	if refID != -1 {
+		if refID < -1 || refID >= refs {
+			return nil, errors.New("bam: reference id out of range")
+		}
+		rec.Ref = header.Refs()[refID]
+	}
+	if nextRefID != -1 {
+		if refID == nextRefID {
+			rec.MateRef = rec.Ref
+			return &rec, nil
+		}
+		if nextRefID < -1 || nextRefID >= refs {
+			return nil, errors.New("bam: mate reference id out of range")
+		}
+		rec.MateRef = header.Refs()[nextRefID]
+	}
+
+	return &rec, nil
+}
+
 // Read returns the next sam.Record in the BAM stream.
 //
 // The sam.Record returned will not contain the sequence, quality or

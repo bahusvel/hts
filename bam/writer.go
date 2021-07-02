@@ -73,6 +73,54 @@ func (bw *Writer) writeHeader(h *sam.Header) error {
 	return err
 }
 
+func EncodeBAM(r *sam.Record) ([]byte, error) {
+	if len(r.Name) == 0 || len(r.Name) > 254 {
+		return []byte{}, errors.New("bam: name absent or too long")
+	}
+	if r.Qual != nil && len(r.Qual) != r.Seq.Length {
+		return []byte{}, errors.New("bam: sequence/quality length mismatch")
+	}
+	tags := buildAux(r.AuxFields)
+	recLen := bamFixedRemainder +
+		len(r.Name) + 1 + // Null terminated.
+		len(r.Cigar)<<2 + // CigarOps are 4 bytes.
+		len(r.Seq.Seq) +
+		r.Seq.Length +
+		len(tags)
+
+	bin := binaryWriter{w: &bytes.Buffer{}}
+
+	// Write record header data.
+	bin.writeInt32(int32(recLen))
+	bin.writeInt32(int32(r.Ref.ID()))
+	bin.writeInt32(int32(r.Pos))
+	bin.writeUint8(byte(len(r.Name) + 1))
+	bin.writeUint8(r.MapQ)
+	bin.writeUint16(uint16(r.Bin())) //r.bin
+	bin.writeUint16(uint16(len(r.Cigar)))
+	bin.writeUint16(uint16(r.Flags))
+	bin.writeInt32(int32(r.Seq.Length))
+	bin.writeInt32(int32(r.MateRef.ID()))
+	bin.writeInt32(int32(r.MatePos))
+	bin.writeInt32(int32(r.TempLen))
+
+	// Write variable length data.
+	bin.w.WriteString(r.Name)
+	bin.w.WriteByte(0)
+	writeCigarOps(&bin, r.Cigar)
+	bin.w.Write(doublets(r.Seq.Seq).Bytes())
+	if r.Qual != nil {
+		bin.w.Write(r.Qual)
+	} else {
+		for i := 0; i < r.Seq.Length; i++ {
+			bin.w.WriteByte(0xff)
+		}
+	}
+	bin.w.Write(tags)
+	// println(string(bw.buf.Bytes()))
+	return bin.w.Bytes(), nil
+}
+
 // Write writes r to the BAM stream.
 func (bw *Writer) Write(r *sam.Record) error {
 	if len(r.Name) == 0 || len(r.Name) > 254 {
@@ -119,6 +167,7 @@ func (bw *Writer) Write(r *sam.Record) error {
 		}
 	}
 	bw.buf.Write(tags)
+	// println(string(bw.buf.Bytes()))
 	_, err := bw.bg.Write(bw.buf.Bytes())
 	return err
 }
