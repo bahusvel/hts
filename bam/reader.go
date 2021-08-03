@@ -256,7 +256,7 @@ func (br *Reader) Read() (*sam.Record, error) {
 
 	rec.Cigar = readCigarOps(b.bytes(int(nCigar) * 4))
 
-	var seq, auxTags []byte
+	var seq, qual, auxTags []byte
 	if br.omit >= AllVariableLengthData {
 		goto done
 	}
@@ -265,9 +265,13 @@ func (br *Reader) Read() (*sam.Record, error) {
 		return nil, fmt.Errorf("bam: invalid sequence length: %d", lSeq)
 	}
 	seq = make([]byte, (lSeq>>1)+(lSeq&0x1))
+	qual = make([]byte, lSeq)
+
 	copy(seq, b.bytes(len(seq)))
 	rec.Seq = sam.Seq{Length: lSeq, Seq: *(*doublets)(unsafe.Pointer(&seq))}
-	rec.Qual = b.bytes(lSeq)
+	copy(qual, b.bytes(lSeq))
+	rec.Qual = qual
+	// rec.Qual = b.bytes(lSeq)
 
 	if br.omit >= AuxTags {
 		goto done
