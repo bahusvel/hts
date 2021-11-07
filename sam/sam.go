@@ -216,6 +216,6 @@ const (
 
 func validInt32(i int) bool { return minInt32 <= i && i <= maxInt32 }
 
-func validLen(i int) bool      { return 1 <= i && i <= 1<<wordBits-1 }
+func validLen(i int) bool      { return 0 <= i && i <= 1<<wordBits-1 }
 func validPos(i int) bool      { return -1 <= i && i <= (1<<wordBits-1)-1 } // 0-based.
 func validTmpltLen(i int) bool { return -(1<<wordBits) <= i && i <= 1<<wordBits-1 }

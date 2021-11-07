@@ -480,6 +480,7 @@ func (bh *Header) Progs() []*Program {
 
 // AddReference adds r to the Header.
 func (bh *Header) AddReference(r *Reference) error {
+	// fmt.Println(bh.seenRefs)
 	if dupID, dup := bh.seenRefs[r.name]; dup {
 		er := bh.refs[dupID]
 		if equalRefs(er, r) {
@@ -502,7 +503,8 @@ func (bh *Header) AddReference(r *Reference) error {
 		bh.refs[dupID] = r
 		return nil
 	}
-	if r.owner != nil || r.id >= 0 {
+	
+	if r.owner != nil {//|| r.id >= 0 {
 		return errUsedReference
 	}
 	r.owner = bh

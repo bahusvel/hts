@@ -75,8 +75,13 @@ func (bh *Header) DecodeBinary(r io.Reader) error {
 	if err != nil {
 		return err
 	}
+	// fmt.Println(refs)
 	for _, r := range refs {
 		err = bh.AddReference(r)
+		// fmt.Println("Reference", r, r.id)
+		// if err == errUsedReference {
+		// 	fmt.Println("Error thrown here", r, r.id)
+		// }
 		if err != nil {
 			return err
 		}
